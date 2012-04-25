@@ -12,14 +12,17 @@ import android.widget.TextView;
 
 public class AdapterBirdItem extends ArrayAdapter<Bird> {
 	private List<Bird> birds;
+	private List<Boolean> watched;
 	private Context context;
 	private int textViewResourceId;
 	private boolean english, latin;
 
 	public AdapterBirdItem(Context context, int textViewResourceId,
-			List<Bird> objects, boolean english, boolean latin) {
+			List<Bird> objects, List<Boolean> watched, boolean english,
+			boolean latin) {
 		super(context, textViewResourceId, objects);
 		this.birds = objects;
+		this.watched = watched;
 		this.context = context;
 		this.textViewResourceId = textViewResourceId;
 		this.english = english;
@@ -36,20 +39,29 @@ public class AdapterBirdItem extends ArrayAdapter<Bird> {
 		}
 		Bird bird = this.birds.get(position);
 		// The english name
+		TextView englishName = (TextView) v
+				.findViewById(R.id.ItemBirdEnglishName);
+		englishName.setText(bird.getEnglishName());
 		if (this.english) {
-			TextView englishName = (TextView) v
-					.findViewById(R.id.ItemBirdEnglishName);
-			englishName.setText(bird.getEnglishName());
+			englishName.setVisibility(View.VISIBLE);
+		} else {
+			englishName.setVisibility(View.GONE);
 		}
+		TextView latinName = (TextView) v.findViewById(R.id.ItemBirdLatinName);
+		latinName.setText(bird.getLatinName());
 		// The latin name
 		if (this.latin) {
-			TextView latinName = (TextView) v
-					.findViewById(R.id.ItemBirdLatinName);
-			latinName.setText(bird.getLatinName());
+			latinName.setVisibility(View.VISIBLE);
+		} else {
+			latinName.setVisibility(View.GONE);
 		}
 		// The watched checkbox
 		CheckBox watched = (CheckBox) v.findViewById(R.id.ItemWatched);
-		watched.setChecked(false);
+		if (this.watched.get(position)) {
+			watched.setChecked(true);
+		} else {
+			watched.setChecked(false);
+		}
 		return v;
 	}
 
