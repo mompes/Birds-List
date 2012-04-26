@@ -4,6 +4,15 @@
     android:layout_height="fill_parent"
     android:orientation="vertical" >
 
+    <AutoCompleteTextView
+        android:id="@+id/autoCompleteTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Name of the bird" >
+
+        <requestFocus />
+    </AutoCompleteTextView>
+
     <ListView
         android:id="@+id/listViewBirds"
         android:layout_width="match_parent"

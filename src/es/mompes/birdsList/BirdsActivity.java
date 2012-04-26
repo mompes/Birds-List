@@ -6,11 +6,13 @@ import java.util.List;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.CheckBox;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -42,10 +44,6 @@ public class BirdsActivity extends Activity implements Serializable {
 	 * A dialog used to show information to the user.
 	 */
 	private ProgressDialog dialog;
-	/**
-	 * Store the watched birds.
-	 */
-	private List<Boolean> watched;
 	/**
 	 * Database.
 	 */
@@ -79,7 +77,6 @@ public class BirdsActivity extends Activity implements Serializable {
 		}
 		if (this.dialog == null) {
 			dialog = new ProgressDialog(this);
-			dialog.setMessage("Loading...");
 			dialog.setTitle("Progress");
 			dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 		}
@@ -103,9 +100,8 @@ public class BirdsActivity extends Activity implements Serializable {
 		// Store the new watched bird
 		for (int i = 0; i < this.birds.size(); i++) {
 			if (this.birds.get(i).getLatinName().equals(latinName)) {
-				this.watched.set(i, cb.isChecked());
 				// Updates the value in the database
-				this.dBBirds.updateBird(this.birds.get(i).getLatinName(),
+				this.dBBirds.updateBird(this.birds.get(i).getId(),
 						cb.isChecked());
 				break;
 			}
@@ -134,6 +130,7 @@ public class BirdsActivity extends Activity implements Serializable {
 		protected void onPreExecute() {
 			dialog.setProgress(0);
 			dialog.setMax(zones.size());
+			dialog.setMessage("Loading regions...");
 			dialog.show();
 			super.onPreExecute();
 		}
@@ -142,41 +139,61 @@ public class BirdsActivity extends Activity implements Serializable {
 		protected List<Bird> doInBackground(List<Zone>... zones) {
 			// Fill the list
 			List<Bird> birds = new LinkedList<Bird>();
-			int i = 0;
+			int j = 0;
 			for (Zone zone : zones[0]) {
-				i++;
+				j++;
 				birds.addAll(Manager.getBirdsOfZone(this.activity, zone));
-				publishProgress(i);
+				// Publish the progress each time than a new zone is loaded
+				publishProgress(j);
 			}
 			return birds;
 		}
 
 		@Override
-		protected void onPostExecute(List<Bird> result) {
+		protected void onPostExecute(final List<Bird> result) {
+			// Store the birds in the database if they aren't yet
 			for (int i = 0; i < result.size(); i++) {
-				if (!dBBirds.isBird(result.get(i).getLatinName())) {
-					dBBirds.insertBird(result.get(i).getLatinName(), false);
+				if (!dBBirds.isBird(result.get(i).getId())) {
+					dBBirds.insertBird(result.get(i).getId(), result.get(i)
+							.getLatinName(), false);
 				}
 			}
-			watched = new LinkedList<Boolean>();
-			for (int i = 0; i < result.size(); i++) {
-				Cursor cursor = dBBirds.getBird(result.get(i).getLatinName());
-				if (cursor != null
-						&& cursor.getString(
-								cursor.getColumnIndex(DBBirds.KEY_LATIN_NAME))
-								.equals(result.get(i).getLatinName())) {
-					watched.add(cursor.getInt(cursor
-							.getColumnIndex(DBBirds.KEY_WATCHED)) == 1 ? true
-							: false);
-				} else {
-					watched.add(false);
-				}
-			}
+			// Put the birds in the listView
 			birds = result;
 			adapter = new AdapterBirdItem(this.activity, R.layout.bird_item,
-					birds, watched, english, latin);
-			ListView listView = (ListView) findViewById(R.id.listViewBirds);
+					birds, english, latin, dBBirds);
+			final ListView listView = (ListView) findViewById(R.id.listViewBirds);
 			listView.setAdapter(adapter);
+
+			// Creates a list with the names of the selected birds in english
+			// and in latin
+			List<String> birdsString = new LinkedList<String>();
+			for (int i = 0; i < result.size(); i++) {
+				birdsString.add(result.get(i).getEnglishName());
+				birdsString.add(result.get(i).getLatinName());
+			}
+			// Set the list to the autoCompleteTextView
+			ArrayAdapter<String> adapterACTV = new ArrayAdapter<String>(
+					activity, android.R.layout.simple_list_item_1, birdsString);
+			AutoCompleteTextView aCTV = (AutoCompleteTextView) findViewById(R.id.autoCompleteTextView);
+			// When the user click on one of the suggestions the list move to
+			// that bird
+			aCTV.setOnItemClickListener(new OnItemClickListener() {
+				public void onItemClick(AdapterView<?> arg0, View arg1,
+						int arg2, long arg3) {
+					for (int i = 0; i < result.size(); i++) {
+						if (result.get(i).getEnglishName()
+								.equals(((TextView) arg1).getText())
+								| result.get(i).getLatinName()
+										.equals(((TextView) arg1).getText())) {
+							listView.setSelection(i);
+							break;
+						}
+					}
+				}
+			});
+			aCTV.setAdapter(adapterACTV);
+
 			dialog.dismiss();
 			super.onPostExecute(result);
 		}

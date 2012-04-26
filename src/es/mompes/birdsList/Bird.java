@@ -13,16 +13,18 @@ public class Bird implements Serializable {
 	private String latinName;
 	private String englishName;
 	private Zone zone;
+	private int id;
 
 	/**
 	 * @param latinName
 	 * @param englishName
 	 * @param zone
 	 */
-	public Bird(String latinName, String englishName, Zone zone) {
+	public Bird(String latinName, String englishName, Zone zone, int id) {
 		this.latinName = latinName;
 		this.englishName = englishName;
 		this.zone = zone;
+		this.id = id;
 	}
 
 	public String getLatinName() {
@@ -35,6 +37,10 @@ public class Bird implements Serializable {
 
 	public Zone getZone() {
 		return zone;
+	}
+
+	public int getId() {
+		return id;
 	}
 
 	private void readObject(ObjectInputStream aInputStream)

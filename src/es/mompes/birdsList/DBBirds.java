@@ -17,9 +17,9 @@ public class DBBirds {
 	private static final int DATABASE_VERSION = 1;
 
 	private static final String DATABASE_CREATE = "create table "
-			+ DATABASE_TABLE + " (" + KEY_ID
-			+ " integer primary key autoincrement, " + KEY_LATIN_NAME
-			+ " text unique not null, " + KEY_WATCHED + " integer not null);";
+			+ DATABASE_TABLE + " (" + KEY_ID + " integer primary key, "
+			+ KEY_LATIN_NAME + " text unique not null, " + KEY_WATCHED
+			+ " integer not null);";
 
 	private final Context context;
 	private DatabaseHelper DBHelper;
@@ -59,8 +59,9 @@ public class DBBirds {
 	}
 
 	// ---insert a bird into the database---
-	public long insertBird(String latinName, Boolean watched) {
+	public long insertBird(int id, String latinName, Boolean watched) {
 		ContentValues initialValues = new ContentValues();
+		initialValues.put(KEY_ID, id);
 		initialValues.put(KEY_LATIN_NAME, latinName);
 		initialValues.put(KEY_WATCHED, watched ? 1 : 0);
 		return db.insert(DATABASE_TABLE, null, initialValues);
@@ -69,7 +70,7 @@ public class DBBirds {
 	// ---retrieves a bird---
 	public Cursor getBird(String latinName) {
 		Cursor mCursor = db.query(DATABASE_TABLE, new String[] {
-				KEY_LATIN_NAME, KEY_WATCHED }, KEY_LATIN_NAME + " = ?",
+				KEY_LATIN_NAME, KEY_WATCHED, KEY_ID }, KEY_LATIN_NAME + " = ?",
 				new String[] { latinName }, null, null, null);
 		if (mCursor != null) {
 			mCursor.moveToFirst();
@@ -78,13 +79,25 @@ public class DBBirds {
 	}
 
 	public boolean isBird(String latinName) {
-		Cursor mCursor = db.query(DATABASE_TABLE, new String[] {
-				KEY_LATIN_NAME, KEY_WATCHED }, KEY_LATIN_NAME + " = ?",
+		Cursor mCursor = db.query(DATABASE_TABLE,
+				new String[] { KEY_LATIN_NAME }, KEY_LATIN_NAME + " = ?",
 				new String[] { latinName }, null, null, null);
 		if (mCursor != null) {
 			mCursor.moveToFirst();
 		}
 		return mCursor != null && mCursor.getCount() > 0;
+	}
+
+	public boolean isWatched(String latinName) {
+		Cursor mCursor = db.query(DATABASE_TABLE, new String[] { KEY_WATCHED },
+				KEY_LATIN_NAME + " = ?", new String[] { latinName }, null,
+				null, null);
+		if (mCursor != null && mCursor.getCount() > 0) {
+			mCursor.moveToFirst();
+		} else {
+			return false;
+		}
+		return mCursor.getInt(mCursor.getColumnIndex(KEY_WATCHED)) == 1;
 	}
 
 	// ---updates a bird---
@@ -94,5 +107,47 @@ public class DBBirds {
 		updatedValues.put(KEY_WATCHED, watched ? 1 : 0);
 		return db.update(DATABASE_TABLE, updatedValues, KEY_LATIN_NAME + "= ?",
 				new String[] { latinName }) > 0;
+	}
+
+	// ---retrieves a bird---
+	public Cursor getBird(int id) {
+		Cursor mCursor = db.query(DATABASE_TABLE, new String[] {
+				KEY_LATIN_NAME, KEY_WATCHED, KEY_ID }, KEY_ID + " = ?",
+				new String[] { Integer.toString(id) }, null, null, null);
+		if (mCursor != null) {
+			mCursor.moveToFirst();
+		}
+		return mCursor;
+	}
+
+	public boolean isBird(int id) {
+		Cursor mCursor = db.query(DATABASE_TABLE, new String[] { KEY_ID },
+				KEY_ID + " = ?", new String[] { Integer.toString(id) }, null,
+				null, null);
+		if (mCursor != null) {
+			mCursor.moveToFirst();
+		}
+		return mCursor != null && mCursor.getCount() > 0;
+	}
+
+	public boolean isWatched(int id) {
+		Cursor mCursor = db.query(DATABASE_TABLE, new String[] { KEY_WATCHED },
+				KEY_ID + " = ?", new String[] { Integer.toString(id) }, null,
+				null, null);
+		if (mCursor != null && mCursor.getCount() > 0) {
+			mCursor.moveToFirst();
+		} else {
+			return false;
+		}
+		return mCursor.getInt(mCursor.getColumnIndex(KEY_WATCHED)) == 1;
+	}
+
+	// ---updates a bird---
+	public boolean updateBird(int id, Boolean watched) {
+		ContentValues updatedValues = new ContentValues();
+		updatedValues.put(KEY_ID, id);
+		updatedValues.put(KEY_WATCHED, watched ? 1 : 0);
+		return db.update(DATABASE_TABLE, updatedValues, KEY_ID + "= ?",
+				new String[] { Integer.toString(id) }) > 0;
 	}
 }

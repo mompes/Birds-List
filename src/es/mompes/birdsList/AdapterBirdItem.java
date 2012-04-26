@@ -3,6 +3,7 @@ package es.mompes.birdsList;
 import java.util.List;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,21 +13,20 @@ import android.widget.TextView;
 
 public class AdapterBirdItem extends ArrayAdapter<Bird> {
 	private List<Bird> birds;
-	private List<Boolean> watched;
 	private Context context;
 	private int textViewResourceId;
 	private boolean english, latin;
+	private DBBirds dBBirds;
 
 	public AdapterBirdItem(Context context, int textViewResourceId,
-			List<Bird> objects, List<Boolean> watched, boolean english,
-			boolean latin) {
+			List<Bird> objects, boolean english, boolean latin, DBBirds dBBirds) {
 		super(context, textViewResourceId, objects);
 		this.birds = objects;
-		this.watched = watched;
 		this.context = context;
 		this.textViewResourceId = textViewResourceId;
 		this.english = english;
 		this.latin = latin;
+		this.dBBirds = dBBirds;
 	}
 
 	@Override
@@ -57,12 +57,12 @@ public class AdapterBirdItem extends ArrayAdapter<Bird> {
 		}
 		// The watched checkbox
 		CheckBox watched = (CheckBox) v.findViewById(R.id.ItemWatched);
-		if (this.watched.get(position)) {
+		// Ask to the database if this bird has been watched
+		if (this.dBBirds.isWatched(this.birds.get(position).getId())) {
 			watched.setChecked(true);
 		} else {
 			watched.setChecked(false);
 		}
 		return v;
 	}
-
 }
