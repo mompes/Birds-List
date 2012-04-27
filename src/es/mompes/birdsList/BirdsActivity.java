@@ -39,7 +39,7 @@ public class BirdsActivity extends Activity implements Serializable {
 	/**
 	 * The zones that the user has selected to watch.
 	 */
-	private List<Zone> zones;
+	private List<Region> regions;
 	/**
 	 * A dialog used to show information to the user.
 	 */
@@ -58,13 +58,13 @@ public class BirdsActivity extends Activity implements Serializable {
 		if (savedInstanceState != null) {
 			this.english = savedInstanceState.getBoolean("english");
 			this.latin = savedInstanceState.getBoolean("latin");
-			this.zones = (List<Zone>) savedInstanceState
+			this.regions = (List<Region>) savedInstanceState
 					.getSerializable("zones");
 		} else {
 			Bundle b = getIntent().getExtras();
 			this.english = b.getBoolean("english");
 			this.latin = b.getBoolean("latin");
-			this.zones = (List<Zone>) b.getSerializable("zones");
+			this.regions = (List<Region>) b.getSerializable("zones");
 		}
 	}
 
@@ -80,14 +80,14 @@ public class BirdsActivity extends Activity implements Serializable {
 			dialog.setTitle("Progress");
 			dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 		}
-		new fillBirds(this).execute(this.zones);
+		new fillBirds(this).execute(this.regions);
 	}
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		outState.putBoolean("english", this.english);
 		outState.putBoolean("latin", this.latin);
-		outState.putSerializable("zones", (Serializable) this.zones);
+		outState.putSerializable("zones", (Serializable) this.regions);
 		super.onSaveInstanceState(outState);
 	}
 
@@ -114,7 +114,7 @@ public class BirdsActivity extends Activity implements Serializable {
 		super.onStop();
 	}
 
-	private class fillBirds extends AsyncTask<List<Zone>, Integer, List<Bird>> {
+	private class fillBirds extends AsyncTask<List<Region>, Integer, List<Bird>> {
 
 		private Activity activity;
 
@@ -129,20 +129,20 @@ public class BirdsActivity extends Activity implements Serializable {
 		@Override
 		protected void onPreExecute() {
 			dialog.setProgress(0);
-			dialog.setMax(zones.size());
+			dialog.setMax(regions.size());
 			dialog.setMessage("Loading regions...");
 			dialog.show();
 			super.onPreExecute();
 		}
 
 		@Override
-		protected List<Bird> doInBackground(List<Zone>... zones) {
+		protected List<Bird> doInBackground(List<Region>... zones) {
 			// Fill the list
 			List<Bird> birds = new LinkedList<Bird>();
 			int j = 0;
-			for (Zone zone : zones[0]) {
+			for (Region zone : zones[0]) {
 				j++;
-				birds.addAll(Manager.getBirdsOfZone(this.activity, zone));
+				birds.addAll(Manager.getBirdsOfRegion(this.activity, zone));
 				// Publish the progress each time than a new zone is loaded
 				publishProgress(j);
 			}

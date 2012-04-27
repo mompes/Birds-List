@@ -55,12 +55,12 @@ public class Manager {
 
 	/**
 	 * 
-	 * @param zone
-	 *            The zone where the birds than we are asking for live.
+	 * @param region
+	 *            The region where the birds than we are asking for live.
 	 * @return All the known birds of that specific zone.
 	 */
-	public static List<Bird> getBirdsOfZone(final Activity activity,
-			final Zone zone) {
+	public static List<Bird> getBirdsOfRegion(final Activity activity,
+			final Region region) {
 		LinkedList<Bird> list = new LinkedList<Bird>();
 		XmlResourceParser parser = null;
 		parser = activity.getResources().getXml(R.xml.birds);
@@ -86,9 +86,9 @@ public class Manager {
 						breedingRegion = parser.nextText();
 					} else if (!englishName.equals("") & name.equals("code")) {
 						int code = Integer.parseInt(parser.nextText());
-						if (breedingRegion.contains(zone.toString())) {
+						if (breedingRegion.contains(region.toString())) {
 							list.add(new Bird(genus + " " + latinName,
-									englishName, zone, code));
+									englishName, region, code));
 						}
 						englishName = "";
 					}
@@ -106,7 +106,8 @@ public class Manager {
 		return list;
 	}
 
-	public List<String> getSubZones(final Activity activity, final Zone zone) {
+	public static List<String> getSubRegions(final Activity activity,
+			final Region zone) {
 		LinkedList<String> list = new LinkedList<String>();
 		XmlResourceParser parser = null;
 		parser = activity.getResources().getXml(R.xml.birds);
@@ -118,12 +119,14 @@ public class Manager {
 				case XmlPullParser.START_TAG:
 					name = parser.getName();
 					if (name.equals("breeding_regions")) {
-						String zoneString = parser.nextText();
+						String regionString = parser.nextText();
 						parser.next();
-						if (zoneString.contains(zone.toString())) {
-							String[] subZones = parser.nextText().split(", ");
-							for (String z : subZones) {
-								list.add(z);
+						if (regionString.equals(zone.toString())) {
+							String[] subRegions = parser.nextText().split(", ");
+							for (String sR : subRegions) {
+								if (sR.length() > 2 & !list.contains(sR)) {
+									list.add(sR);
+								}
 							}
 						}
 					}

@@ -12,7 +12,7 @@ public class Bird implements Serializable {
 	private static final long serialVersionUID = 2526860255418058243L;
 	private String latinName;
 	private String englishName;
-	private Zone zone;
+	private Region zone;
 	private int id;
 
 	/**
@@ -20,7 +20,7 @@ public class Bird implements Serializable {
 	 * @param englishName
 	 * @param zone
 	 */
-	public Bird(String latinName, String englishName, Zone zone, int id) {
+	public Bird(String latinName, String englishName, Region zone, int id) {
 		this.latinName = latinName;
 		this.englishName = englishName;
 		this.zone = zone;
@@ -35,7 +35,7 @@ public class Bird implements Serializable {
 		return englishName;
 	}
 
-	public Zone getZone() {
+	public Region getZone() {
 		return zone;
 	}
 

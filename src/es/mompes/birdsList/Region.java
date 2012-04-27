@@ -2,7 +2,7 @@ package es.mompes.birdsList;
 
 import java.io.Serializable;
 
-public enum Zone implements Serializable {
+public enum Region implements Serializable {
 	/**
 	 * Europe.
 	 */
@@ -77,42 +77,78 @@ public enum Zone implements Serializable {
 	 */
 	SCONE;
 
-	// @Override
-	// public String toString() {
-	// String result = "";
-	// switch (this) {
-	// case EU:
-	// result = "EU";
-	// break;
-	// case AU:
-	// result = "AU";
-	// break;
-	// case AF:
-	// result = "AF";
-	// break;
-	// case SA:
-	// result = "SA";
-	// break;
-	// case WORLDWIDE:
-	// result = "Worldwide";
-	// break;
-	// case MA:
-	// result = "MA";
-	// break;
-	// default:
-	// break;
-	// }
-	// return result;
-	// }
+	@Override
+	public String toString() {
+		String result = "";
+		switch (this) {
+		case EU:
+			result = "EU";
+			break;
+		case AU:
+			result = "AU";
+			break;
+		case AF:
+			result = "AF";
+			break;
+		case SA:
+			result = "SA";
+			break;
+		case WORLDWIDE:
+			result = "Worldwide";
+			break;
+		case MA:
+			result = "MA";
+			break;
+		case NA:
+			result = "NA";
+			break;
+		case LA:
+			result = "LA";
+			break;
+		case OR:
+			result = "OR";
+			break;
+		case AO:
+			result = "AO";
+			break;
+		case PO:
+			result = "PO";
+			break;
+		case IO:
+			result = "IO";
+			break;
+		case TRO:
+			result = "TRO";
+			break;
+		case TO:
+			result = "TO";
+			break;
+		case NO:
+			result = "NO";
+			break;
+		case SO:
+			result = "SO";
+			break;
+		case AN:
+			result = "AN";
+			break;
+		case SCONE:
+			result = "So. Cone";
+			break;
+		default:
+			break;
+		}
+		return result;
+	}
 
 	public String toHumanString() {
 		String result = "";
 		switch (this) {
 		case EU:
-			result = "Europe";
+			result = "Eurasia";
 			break;
 		case AU:
-			result = "Australia";
+			result = "Australasia";
 			break;
 		case AF:
 			result = "Africa";
@@ -168,10 +204,10 @@ public enum Zone implements Serializable {
 		return result;
 	}
 
-	public static Zone fromHumanString(final String zoneString) {
-		for (Zone zone : Zone.values()) {
-			if (zone.toHumanString().equals(zoneString)) {
-				return zone;
+	public static Region parseHumanRegion(final String regionString) {
+		for (Region region : Region.values()) {
+			if (region.toHumanString().equals(regionString)) {
+				return region;
 			}
 		}
 		return null;
