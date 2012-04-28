@@ -1,6 +1,8 @@
 package es.mompes.birdsList;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -8,6 +10,8 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -61,6 +65,38 @@ public class BirdsActivity extends Activity implements Serializable {
 			this.language = (Language) b.getSerializable("language");
 			this.regions = (List<Region>) b.getSerializable("zones");
 		}
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		menu.add("Latin alphabetic");
+		menu.add(this.language.toString() + " alphabetic");
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getTitle().equals("Latin alphabetic")) {
+			Comparator<Bird> comparator = new Comparator<Bird>() {
+
+				public int compare(Bird lhs, Bird rhs) {
+					return lhs.getName(Language.LATIN).compareTo(
+							rhs.getName(Language.LATIN));
+				}
+			};
+			Collections.sort(this.birds, comparator);
+		} else {
+			Comparator<Bird> comparator = new Comparator<Bird>() {
+
+				public int compare(Bird lhs, Bird rhs) {
+					return lhs.getName(language).compareTo(
+							rhs.getName(language));
+				}
+			};
+			Collections.sort(this.birds, comparator);
+		}
+		this.adapter.notifyDataSetChanged();
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
