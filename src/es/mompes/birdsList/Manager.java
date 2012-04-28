@@ -1,8 +1,10 @@
 package es.mompes.birdsList;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -69,6 +71,11 @@ public class Manager {
 			String genus = "";
 			String breedingRegion = "";
 			String englishName = "";
+			String spanishName = "";
+			String germanName = "";
+			String danishName = "";
+			String italianName = "";
+			String frenchName = "";
 			int eventType = parser.getEventType();
 			while (eventType != XmlPullParser.END_DOCUMENT) {
 				String name = null;
@@ -78,7 +85,17 @@ public class Manager {
 					if (name.equals("english_name") & parser.getDepth() > 5) {
 						englishName = parser.nextText();
 					} else if (name.equals("latin_name")) {
-						latinName = parser.nextText();
+						latinName = genus + " " + parser.nextText();
+					} else if (name.equals("spanish_name")) {
+						spanishName = parser.nextText();
+					} else if (name.equals("german_name")) {
+						germanName = parser.nextText();
+					} else if (name.equals("italian_name")) {
+						italianName = parser.nextText();
+					} else if (name.equals("danish_name")) {
+						danishName = parser.nextText();
+					} else if (name.equals("french_name")) {
+						frenchName = parser.nextText();
 					} else if (name.equals("genus")) {
 						parser.next();
 						genus = parser.nextText();
@@ -86,11 +103,24 @@ public class Manager {
 						breedingRegion = parser.nextText();
 					} else if (!englishName.equals("") & name.equals("code")) {
 						int code = Integer.parseInt(parser.nextText());
+						Map<Language, String> languages = new HashMap<Language, String>();
+						languages.put(Language.LATIN, latinName);
+						languages.put(Language.ENGLISH, englishName);
+						languages.put(Language.DANISH, danishName);
+						languages.put(Language.FRENCH, frenchName);
+						languages.put(Language.GERMAN, germanName);
+						languages.put(Language.ITALIAN, italianName);
+						languages.put(Language.SPANISH, spanishName);
 						if (breedingRegion.contains(region.toString())) {
-							list.add(new Bird(genus + " " + latinName,
-									englishName, region, code));
+							list.add(new Bird(languages, region, code));
 						}
 						englishName = "";
+						latinName = "";
+						spanishName = "";
+						italianName = "";
+						germanName = "";
+						frenchName = "";
+						danishName = "";
 					}
 					break;
 				}
@@ -105,6 +135,53 @@ public class Manager {
 		}
 		return list;
 	}
+
+	// public static List<Bird> getBirdsOfSubRegion(final Activity activity,
+	// final String subRegion) {
+	// LinkedList<Bird> list = new LinkedList<Bird>();
+	// XmlResourceParser parser = null;
+	// parser = activity.getResources().getXml(R.xml.birds);
+	// try {
+	// String latinName = "";
+	// String genus = "";
+	// String breedingSubRegion = "";
+	// String englishName = "";
+	// int eventType = parser.getEventType();
+	// while (eventType != XmlPullParser.END_DOCUMENT) {
+	// String name = null;
+	// switch (eventType) {
+	// case XmlPullParser.START_TAG:
+	// name = parser.getName();
+	// if (name.equals("english_name") & parser.getDepth() > 5) {
+	// englishName = parser.nextText();
+	// } else if (name.equals("latin_name")) {
+	// latinName = parser.nextText();
+	// } else if (name.equals("genus")) {
+	// parser.next();
+	// genus = parser.nextText();
+	// } else if (name.equals("breeding_subregions")) {
+	// breedingSubRegion = parser.nextText();
+	// } else if (!englishName.equals("") & name.equals("code")) {
+	// int code = Integer.parseInt(parser.nextText());
+	// if (breedingSubRegion.contains(subRegion)) {
+	// list.add(new Bird(genus + " " + latinName,
+	// englishName, Region.AF, code));
+	// }
+	// englishName = "";
+	// }
+	// break;
+	// }
+	// eventType = parser.next();
+	// }
+	// } catch (XmlPullParserException e) {
+	// throw new RuntimeException("Cannot parse XML");
+	// } catch (IOException e) {
+	// throw new RuntimeException("Cannot parse XML");
+	// } finally {
+	// parser.close();
+	// }
+	// return list;
+	// }
 
 	public static List<String> getSubRegions(final Activity activity,
 			final Region zone) {

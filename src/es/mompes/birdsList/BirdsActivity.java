@@ -29,13 +29,9 @@ public class BirdsActivity extends Activity implements Serializable {
 	 */
 	private List<Bird> birds;
 	/**
-	 * If it is true the english name will be showed.
+	 * The selected language.
 	 */
-	private boolean english;
-	/**
-	 * If it is true the latin name will be showed.
-	 */
-	private boolean latin;
+	private Language language;
 	/**
 	 * The zones that the user has selected to watch.
 	 */
@@ -56,14 +52,13 @@ public class BirdsActivity extends Activity implements Serializable {
 		setContentView(R.layout.birds_list);
 		// Recover the data passed
 		if (savedInstanceState != null) {
-			this.english = savedInstanceState.getBoolean("english");
-			this.latin = savedInstanceState.getBoolean("latin");
+			this.language = (Language) savedInstanceState
+					.getSerializable("language");
 			this.regions = (List<Region>) savedInstanceState
 					.getSerializable("zones");
 		} else {
 			Bundle b = getIntent().getExtras();
-			this.english = b.getBoolean("english");
-			this.latin = b.getBoolean("latin");
+			this.language = (Language) b.getSerializable("language");
 			this.regions = (List<Region>) b.getSerializable("zones");
 		}
 	}
@@ -85,8 +80,7 @@ public class BirdsActivity extends Activity implements Serializable {
 
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
-		outState.putBoolean("english", this.english);
-		outState.putBoolean("latin", this.latin);
+		outState.putSerializable("language", this.language);
 		outState.putSerializable("zones", (Serializable) this.regions);
 		super.onSaveInstanceState(outState);
 	}
@@ -99,7 +93,7 @@ public class BirdsActivity extends Activity implements Serializable {
 		String latinName = tv.getText().toString();
 		// Store the new watched bird
 		for (int i = 0; i < this.birds.size(); i++) {
-			if (this.birds.get(i).getLatinName().equals(latinName)) {
+			if (this.birds.get(i).getName(Language.LATIN).equals(latinName)) {
 				// Updates the value in the database
 				this.dBBirds.updateBird(this.birds.get(i).getId(),
 						cb.isChecked());
@@ -114,7 +108,8 @@ public class BirdsActivity extends Activity implements Serializable {
 		super.onStop();
 	}
 
-	private class fillBirds extends AsyncTask<List<Region>, Integer, List<Bird>> {
+	private class fillBirds extends
+			AsyncTask<List<Region>, Integer, List<Bird>> {
 
 		private Activity activity;
 
@@ -155,13 +150,13 @@ public class BirdsActivity extends Activity implements Serializable {
 			for (int i = 0; i < result.size(); i++) {
 				if (!dBBirds.isBird(result.get(i).getId())) {
 					dBBirds.insertBird(result.get(i).getId(), result.get(i)
-							.getLatinName(), false);
+							.getName(Language.LATIN), false);
 				}
 			}
 			// Put the birds in the listView
 			birds = result;
 			adapter = new AdapterBirdItem(this.activity, R.layout.bird_item,
-					birds, english, latin, dBBirds);
+					birds, language, dBBirds);
 			final ListView listView = (ListView) findViewById(R.id.listViewBirds);
 			listView.setAdapter(adapter);
 
@@ -169,8 +164,8 @@ public class BirdsActivity extends Activity implements Serializable {
 			// and in latin
 			List<String> birdsString = new LinkedList<String>();
 			for (int i = 0; i < result.size(); i++) {
-				birdsString.add(result.get(i).getEnglishName());
-				birdsString.add(result.get(i).getLatinName());
+				birdsString.add(result.get(i).getName(language));
+				birdsString.add(result.get(i).getName(Language.LATIN));
 			}
 			// Set the list to the autoCompleteTextView
 			ArrayAdapter<String> adapterACTV = new ArrayAdapter<String>(
@@ -182,9 +177,9 @@ public class BirdsActivity extends Activity implements Serializable {
 				public void onItemClick(AdapterView<?> arg0, View arg1,
 						int arg2, long arg3) {
 					for (int i = 0; i < result.size(); i++) {
-						if (result.get(i).getEnglishName()
+						if (result.get(i).getName(language)
 								.equals(((TextView) arg1).getText())
-								| result.get(i).getLatinName()
+								| result.get(i).getName(Language.LATIN)
 										.equals(((TextView) arg1).getText())) {
 							listView.setSelection(i);
 							break;

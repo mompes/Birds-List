@@ -34,7 +34,6 @@ public class AdapterZoneItem extends ArrayAdapter<Region> {
 					.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 			v = vi.inflate(this.textViewResourceId, null);
 		}
-		((Activity) this.context).registerForContextMenu(v);
 		Region region = this.regions.get(position);
 		CheckBox checkBox = (CheckBox) v.findViewById(R.id.cBItemZone);
 		if (this.selected.get(position)) {

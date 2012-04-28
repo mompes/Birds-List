@@ -7,18 +7,15 @@ import java.util.List;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
+import android.widget.Spinner;
 
 public class SelectionActivity extends Activity {
 	/**
@@ -28,13 +25,9 @@ public class SelectionActivity extends Activity {
 	private AdapterZoneItem adapter;
 	private ListView listView;
 	/**
-	 * Selects the language to show the name of the birds.
+	 * The languages to select.
 	 */
-	private CheckBox english, latin;
-	/**
-	 * If the user selects any subregion it is store in this variable.
-	 */
-	private String subRegionSelected;
+	private Spinner languages;
 	/**
 	 * Store the zones than have been selected.
 	 */
@@ -44,14 +37,19 @@ public class SelectionActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.menu);
-		this.english = (CheckBox) findViewById(R.id.cBEnglishName);
-		this.latin = (CheckBox) findViewById(R.id.cBLatinName);
+		// Recover the spinner
+		this.languages = (Spinner) findViewById(R.id.languages);
+		this.languages.setAdapter(new ArrayAdapter<Language>(this,
+				android.R.layout.simple_list_item_single_choice, Language
+						.values()));
+		this.languages.setSelection(0);
+		// Initialize the list of regions selected
 		this.selected = new ArrayList<Boolean>(Region.values().length);
 		for (int i = 0; i < Region.values().length; i++) {
 			this.selected.add(false);
 		}
-		// Set the listener for all zones
-		CheckBox allZones = (CheckBox) findViewById(R.id.cBAllZones);
+		// Set the listener for all the regions
+		CheckBox allZones = (CheckBox) findViewById(R.id.cBAllRegions);
 		allZones.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
 			public void onCheckedChanged(CompoundButton buttonView,
@@ -79,10 +77,7 @@ public class SelectionActivity extends Activity {
 		this.adapter = new AdapterZoneItem(this, R.layout.zone_item,
 				this.regions, this.selected);
 		listView = (ListView) findViewById(R.id.lVZones);
-		registerForContextMenu(listView);
 		listView.setAdapter(this.adapter);
-		// Initialize the variable
-		this.subRegionSelected = "";
 	}
 
 	@Override
@@ -93,9 +88,8 @@ public class SelectionActivity extends Activity {
 	public void onClickSelectionButton(View v) {
 		Intent birdsIntent = new Intent(this, BirdsActivity.class);
 		Bundle b = new Bundle();
-		b.putBoolean("english", this.english.isChecked());
-		b.putBoolean("latin", this.latin.isChecked());
-		b.putString("subRegion", this.subRegionSelected);
+		b.putSerializable("language",
+				(Language) this.languages.getSelectedItem());
 		List<Region> finalZones = new LinkedList<Region>();
 		for (int i = 0; i < this.regions.size(); i++) {
 			if (this.selected.get(i)) {
@@ -122,33 +116,4 @@ public class SelectionActivity extends Activity {
 			i++;
 		}
 	}
-
-	@Override
-	public void onCreateContextMenu(ContextMenu menu, View v,
-			ContextMenuInfo menuInfo) {
-		if (v.getClass().equals(ListView.class)) {
-			Log.d("ContextMenu", "ListView");
-			return;
-		}
-		Log.d("ContextMenu", "Creating");
-		// Log.d("ContextMenu", "menuInfo: " + menuInfo.getClass());
-		// AdapterContextMenuInfo aCMI = (AdapterContextMenuInfo) menuInfo;
-		RelativeLayout rL = (RelativeLayout) v;
-		CheckBox cB = (CheckBox) rL.findViewById(R.id.cBItemZone);
-		Log.d("ContextMenu", "Region: " + cB.getText().toString());
-		for (String subRegion : Manager.getSubRegions(this,
-				Region.parseHumanRegion(cB.getText().toString()))) {
-			menu.add(subRegion);
-			Log.d("ContextMenu", "Subregion: " + subRegion);
-		}
-		Log.d("ContextMenu", "Created");
-		super.onCreateContextMenu(menu, v, menuInfo);
-	}
-
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		this.subRegionSelected = item.getTitle().toString();
-		return super.onContextItemSelected(item);
-	}
-
 }

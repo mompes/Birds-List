@@ -4,14 +4,15 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Bird implements Serializable {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 2526860255418058243L;
-	private String latinName;
-	private String englishName;
+	private Map<Language, String> names;
 	private Region zone;
 	private int id;
 
@@ -20,19 +21,14 @@ public class Bird implements Serializable {
 	 * @param englishName
 	 * @param zone
 	 */
-	public Bird(String latinName, String englishName, Region zone, int id) {
-		this.latinName = latinName;
-		this.englishName = englishName;
+	public Bird(Map<Language, String> names, Region zone, int id) {
+		this.names = names;
 		this.zone = zone;
 		this.id = id;
 	}
 
-	public String getLatinName() {
-		return latinName;
-	}
-
-	public String getEnglishName() {
-		return englishName;
+	public String getName(Language lang) {
+		return this.names.get(lang);
 	}
 
 	public Region getZone() {
@@ -47,6 +43,7 @@ public class Bird implements Serializable {
 			throws ClassNotFoundException, IOException {
 		// always perform the default de-serialization first
 		aInputStream.defaultReadObject();
+		this.names = (Map<Language, String>) aInputStream.readObject();
 	}
 
 	private void writeObject(ObjectOutputStream aOutputStream)
@@ -54,5 +51,6 @@ public class Bird implements Serializable {
 		// perform the default serialization for all non-transient, non-static
 		// fields
 		aOutputStream.defaultWriteObject();
+		aOutputStream.writeObject(this.names);
 	}
 }
