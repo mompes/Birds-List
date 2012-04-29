@@ -39,9 +39,11 @@ public class SelectionActivity extends Activity {
 		setContentView(R.layout.menu);
 		// Recover the spinner
 		this.languages = (Spinner) findViewById(R.id.languages);
-		this.languages.setAdapter(new ArrayAdapter<Language>(this,
-				android.R.layout.simple_list_item_single_choice, Language
-						.values()));
+		ArrayAdapter<Language> adapterSpinner = new ArrayAdapter<Language>(
+				this, android.R.layout.simple_spinner_item, Language.values());
+		adapterSpinner
+				.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		this.languages.setAdapter(adapterSpinner);
 		this.languages.setSelection(0);
 		// Initialize the list of regions selected
 		this.selected = new ArrayList<Boolean>(Region.values().length);
